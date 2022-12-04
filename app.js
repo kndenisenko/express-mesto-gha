@@ -1,13 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 const app = express();
 
-const { PORT = 3000, BASE_PATH } = process.env;
+const { PORT = 3000 } = process.env;
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
+app.use('/', require('./routes/users'));
+
 app.listen(PORT, () => {
-  console.log('Ссылка на сервер:');
-  console.log(BASE_PATH);
+  // console.log('Ссылка на сервер:');
+  // console.log('http://localhost:' + PORT);
 });
