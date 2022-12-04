@@ -26,5 +26,8 @@
     "eslint-plugin-import": "^2.26.0",
     "express": "^4.18.2",
     "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "mongoose": "^6.7.5"
   }
 }
