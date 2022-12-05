@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 // Просто так ObjectId не задался в поле type
 // Задаём его через const для всех нужных полей
-const ObjectId = mongoose.Types.ObjectId();
+// const { ObjectId } = mongoose.Schema.Types.ObjectId;
 
-const userSchema = new mongoose.Schema({
+const cardsSchema = mongoose.Schema({
   name: {
     type: String, // тип поля - строка
     required: true, // обязательное поле
@@ -16,11 +16,14 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   owner: {
-    type: ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
   likes: {
-    type: ObjectId,
+    // Произошла ошибка createCard card validation failed:
+    // likes: Cast to ObjectId failed for value \"[]\" (type Array)
+    // at path \"likes\" because of \"BSONTypeError\"
+    type: [mongoose.Schema.Types.ObjectId],
     default: [],
   },
   createdAt: {
@@ -29,4 +32,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('card', userSchema);
+module.exports = mongoose.model('card', cardsSchema);

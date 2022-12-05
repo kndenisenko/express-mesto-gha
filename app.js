@@ -6,12 +6,25 @@ const app = express();
 
 const { PORT = 3000 } = process.env;
 
+// Используем body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Подключаемся к БД
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-app.use('/', require('./routes/users'));
+// Эмуляция авторизации из описания ПР
+app.use((req, res, next) => {
+  req.user = {
+    _id: '638cc711793262883c4a1f55', // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
+
+  next();
+});
+
+// Используем Роуты
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
 app.listen(PORT, () => {
   // console.log('Ссылка на сервер:');
