@@ -22,3 +22,10 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка createCard ${err.message}` }));
 };
+
+// Контроллер удаления карточки
+module.exports.deleteCard = (req, res) => {
+  Card.findByIdAndDelete(req.params.cardId)
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка deleteCard ${err.message}` }));
+};
