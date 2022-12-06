@@ -11,13 +11,15 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
-      if (!user) { // проверяем, тот ли юзер найден
-        res.status(404).send({ message: '404 — Пользователь по указанному _id не найден.' }); // пользователь не тот
-        return;
-      }
-      res.send(user); // пользователь тот
+      res.send(user);
     })
-    .catch(() => res.status(500).send({ message: '500 — Ошибка по умолчанию.' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(404).send({
+          message: '404 — Пользователь по указанному _id не найден.',
+        });
+      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+    });
 };
 
 // Контроллер создания юзера createUser
