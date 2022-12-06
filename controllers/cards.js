@@ -56,8 +56,8 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(400).send({
-          message: '400 — карточка с указанным _id не найдена',
+        res.status(404).send({
+          message: '404 — карточка с указанным _id не найдена',
         });
         return;
       }
@@ -65,8 +65,8 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(404).send({
-          message: '404 — карточка с указанным _id не найдена.',
+        return res.status(400).send({
+          message: '400 — карточка с указанным _id не найдена.',
         });
       } return res.status(500).send({ message: '500 — Ошибка сервера' });
     });
