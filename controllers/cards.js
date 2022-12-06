@@ -23,7 +23,7 @@ module.exports.getCardsById = (req, res) => {
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
 
-  Card.create({ name, link, owner: req.user._id }, { runValidators: true })
+  Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       console.log(err);
