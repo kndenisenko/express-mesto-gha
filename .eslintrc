@@ -1,9 +1,3 @@
-// Этот файл создан, чтобы пройти автотетсы практикума.
-// Не те, которые сделаны на гитхабе. А те, которые проходят при проверке работы с гита
-
-// Вместо .eslintrc используется файл .eslintrc.json
-// https://stackoverflow.com/questions/62340976/is-the-config-file-eslintrc-deprecated-in-favor-of-eslintrc-files
-
 {
   "extends": "airbnb-base", // подключаем стайлгайд Airbnb
   "rules": {
@@ -11,4 +5,12 @@
     "import/no-extraneous-dependencies": ["error",{"devDependencies": true}], // Чтобы eslint считал dependencies и devDependencies одним и тем же
     "no-console": "off" // Чтобы eslint не ругался на console.log
   }
+
+// Этот файл создан, чтобы пройти автотетсы практикума.
+// Не те, которые сделаны на гитхабе. А те, которые проходят при проверке работы с гита
+
+// Вместо .eslintrc используется файл .eslintrc.json
+// https://stackoverflow.com/questions/62340976/is-the-config-file-eslintrc-deprecated-in-favor-of-eslintrc-files
+
+
 }
