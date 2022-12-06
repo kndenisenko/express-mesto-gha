@@ -12,7 +12,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) { // проверяем, тот ли юзер найден
-        res.status(404).send({ message: '404 — Пользователь по указанному _id не найден.' }); // пользователь не тот
+        res.status(400).send({ message: '400 — Пользователь по указанному _id не найден.' }); // пользователь не тот
         return;
       }
       res.send(user); // пользователь тот
@@ -45,8 +45,8 @@ module.exports.updateUser = (req, res) => {
     .catch((err) => {
       console.log(err);
       if (err.name === 'ValidationError') {
-        return res.status(404).send({
-          message: '404 — Переданы некорректные данные при обновлении профиля.',
+        return res.status(400).send({
+          message: '400 — Переданы некорректные данные при обновлении профиля.',
         });
       } return res.status(500).send({ message: '500 — Ошибка сервера' });
     });

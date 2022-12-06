@@ -11,7 +11,7 @@ module.exports.getCardsById = (req, res) => {
   Card.findById(req.params.id)
     .then((card) => {
       if (!card) { // проверяем, есть ли карточка
-        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        res.status(400).send({ message: '400 — Карточка с указанным _id не найдена.' });
         return;
       }
       res.send(card); // карточка есть
@@ -40,7 +40,7 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) { // проверяем, есть ли карточка
-        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        res.status(400).send({ message: '400 — Карточка с указанным _id не найдена.' });
         return;
       }
       res.send(card); // карточка есть
@@ -56,7 +56,7 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) { // проверяем, есть ли карточка
-        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        res.status(400).send({ message: '400 — Карточка с указанным _id не найдена.' });
         return;
       }
       res.send(card); // карточка есть
@@ -72,7 +72,7 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) { // проверяем, есть ли карточка
-        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        res.status(400).send({ message: '400 — Карточка с указанным _id не найдена.' });
         return;
       }
       res.send(card); // карточка есть
