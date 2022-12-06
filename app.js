@@ -26,6 +26,11 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
+// Ошибка 404 для несуществующих страниц
+app.use((req, res) => {
+  res.status(404).send({ message: 'Ошибка 404. Запрошенной Страницы не существует' });
+});
+
 app.listen(PORT, () => {
   // console.log('Ссылка на сервер:');
   // console.log('http://localhost:' + PORT);

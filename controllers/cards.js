@@ -15,7 +15,6 @@ module.exports.getCardsById = (req, res) => {
 
 // Контроллер создания юзера
 module.exports.createCard = (req, res) => {
-  console.log(req.user._id);
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
