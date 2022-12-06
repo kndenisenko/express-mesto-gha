@@ -79,11 +79,19 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => {
-      if (!card) { // проверяем, есть ли карточка
-        res.status(400).send({ message: '400 — Карточка с указанным _id не найдена.' });
+      if (!card) {
+        res.status(404).send({
+          message: '404 — карточка с указанным _id не найдена',
+        });
         return;
       }
-      res.send(card); // карточка есть
+      res.send(card);
     })
-    .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({
+          message: '400 — карточка с указанным _id не найдена.',
+        });
+      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+    });
 };
