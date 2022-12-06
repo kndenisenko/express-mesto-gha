@@ -46,8 +46,9 @@ module.exports.createUser = (req, res) => {
 // Контроллер изменения имени и био Юзера updateUser
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { name, about }, { runValidators: true })
+  // new: true - чтобы возвращать данные обновлённого пользователя вместо старого
+  // runValidators: true - валидация данных по схемам moongoose
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
 
     .then((user) => res.send({ data: user }))
     .catch((err) => {
