@@ -3,3 +3,12 @@
 
 // Вместо .eslintrc используется файл .eslintrc.json
 // https://stackoverflow.com/questions/62340976/is-the-config-file-eslintrc-deprecated-in-favor-of-eslintrc-files
+
+{
+  "extends": "airbnb-base", // подключаем стайлгайд Airbnb
+  "rules": {
+    "no-underscore-dangle": ["error",{"allow":["_id"]}], // Чтобы eslint не ругался на идентификатор _id
+    "import/no-extraneous-dependencies": ["error",{"devDependencies": true}], // Чтобы eslint считал dependencies и devDependencies одним и тем же
+    "no-console": "off" // Чтобы eslint не ругался на console.log
+  }
+}
