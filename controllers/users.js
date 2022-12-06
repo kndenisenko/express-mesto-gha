@@ -12,7 +12,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) { // проверяем, тот ли юзер найден
-        res.status(400).send({ message: '400 — Пользователь по указанному _id не найден.' }); // пользователь не тот
+        res.status(404).send({ message: '404 — Пользователь по указанному _id не найден.' }); // пользователь не тот
         return;
       }
       res.send(user); // пользователь тот
