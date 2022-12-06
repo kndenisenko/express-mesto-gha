@@ -1,0 +1,5 @@
+// Этот файл создан, чтобы пройти автотетсы практикума.
+// Не те, которые сделаны на гитхабе. А те, которые проходят при проверке работы с гита
+
+// Вместо .eslintrc используется файл .eslintrc.json
+// https://stackoverflow.com/questions/62340976/is-the-config-file-eslintrc-deprecated-in-favor-of-eslintrc-files
