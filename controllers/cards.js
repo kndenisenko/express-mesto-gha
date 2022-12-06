@@ -3,14 +3,20 @@ const Card = require('../models/cards');
 module.exports.getCards = (req, res) => {
   Card.find()
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка getCards ${err.message}` }));
+    .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
 };
 
 // Контроллер для поиска юзера по id
 module.exports.getCardsById = (req, res) => {
   Card.findById(req.params.id)
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка getCardsById ${err.message}` }));
+    .then((card) => {
+      if (!card) { // проверяем, есть ли карточка
+        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        return;
+      }
+      res.send(card); // карточка есть
+    })
+    .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
 };
 
 // Контроллер создания юзера
@@ -19,14 +25,27 @@ module.exports.createCard = (req, res) => {
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка createCard ${err.message}` }));
+    .catch((err) => {
+      console.log(err);
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: '400 — Переданы некорректные данные при создании карточки.',
+        });
+      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+    });
 };
 
 // Контроллер удаления карточки
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка deleteCard ${err.message}` }));
+    .then((card) => {
+      if (!card) { // проверяем, есть ли карточка
+        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        return;
+      }
+      res.send(card); // карточка есть
+    })
+    .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
 };
 
 module.exports.likeCard = (req, res) => {
@@ -35,8 +54,14 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка likeCard ${err.message}` }));
+    .then((card) => {
+      if (!card) { // проверяем, есть ли карточка
+        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        return;
+      }
+      res.send(card); // карточка есть
+    })
+    .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -45,6 +70,12 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка dislikeCard ${err.message}` }));
+    .then((card) => {
+      if (!card) { // проверяем, есть ли карточка
+        res.status(404).send({ message: '404 — Карточка с указанным _id не найдена.' });
+        return;
+      }
+      res.send(card); // карточка есть
+    })
+    .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
 };
