@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 // Задаём его через const для всех нужных полей
 // const { ObjectId } = mongoose.Schema.Types.ObjectId;
 
-const cardsSchema = mongoose.Schema({
+const cardsSchema = new mongoose.Schema({
   name: {
     type: String, // тип поля - строка
     required: true, // обязательное поле
