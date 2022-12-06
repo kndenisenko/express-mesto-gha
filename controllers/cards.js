@@ -29,3 +29,23 @@ module.exports.deleteCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => res.status(500).send({ message: `Произошла ошибка deleteCard ${err.message}` }));
 };
+
+module.exports.likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true },
+  )
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка likeCard ${err.message}` }));
+};
+
+module.exports.dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true },
+  )
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(500).send({ message: `Произошла ошибка dislikeCard ${err.message}` }));
+};
