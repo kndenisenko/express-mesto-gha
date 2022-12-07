@@ -1,6 +1,0 @@
-{
-  "extends": "airbnb-base", // подключаем стайлгайд Airbnb
-  "rules": {
-    "no-underscore-dangle": ["error",{"allow":["_id"]}] // Чтобы eslint не ругался на идентификатор _id
-  }
-}

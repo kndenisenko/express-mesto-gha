@@ -17,13 +17,12 @@ const cardsSchema = new mongoose.Schema({
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     required: true,
   },
   likes: {
-    // Произошла ошибка createCard card validation failed:
-    // likes: Cast to ObjectId failed for value \"[]\" (type Array)
-    // at path \"likes\" because of \"BSONTypeError\"
     type: [mongoose.Schema.Types.ObjectId],
+    ref: 'user',
     default: [],
   },
   createdAt: {

@@ -6,19 +6,6 @@ module.exports.getCards = (req, res) => {
     .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
 };
 
-// Контроллер для поиска юзера по id
-module.exports.getCardsById = (req, res) => {
-  Card.findById(req.params.id)
-    .then((card) => {
-      if (!card) { // проверяем, есть ли карточка
-        res.status(400).send({ message: '400 — Карточка с указанным _id не найдена.' });
-        return;
-      }
-      res.send(card); // карточка есть
-    })
-    .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
-};
-
 // Контроллер создания юзера
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
@@ -88,7 +75,7 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(404).send({
-          message: '404 — карточка с указанным _id не найдена',
+          message: '404 — передан неверный _id, карточка не найдена',
         });
         return;
       }

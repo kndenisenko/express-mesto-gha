@@ -22,7 +22,7 @@ module.exports.getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({
-          message: '400 — Пользователь по указанному _id не найден.',
+          message: '400 — Передан невалидный _id, пользователь не найден.',
         });
       } return res.status(500).send({ message: '500 — Ошибка сервера' });
     });
@@ -52,7 +52,6 @@ module.exports.updateUser = (req, res) => {
 
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      console.log(err);
       if (err.name === 'ValidationError') {
         return res.status(400).send({
           message: '400 — Переданы некорректные данные при обновлении профиля.',
@@ -68,7 +67,6 @@ module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      console.log(err);
       if (err.name === 'ValidationError') {
         return res.status(400).send({
           message: '400 — Переданы некорректные данные при обновлении аватара.',
