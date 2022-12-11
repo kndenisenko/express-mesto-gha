@@ -10,7 +10,7 @@ node_modules
 .npm
 
 # ENV files
-.env
+process.env
 
 # Optional REPL history
 .DS_Store
