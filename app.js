@@ -2,10 +2,15 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 // const validator = require('validator ');
+const helmet = require('helmet');
 
 const app = express();
 
 const { PORT = 3000 } = process.env;
+
+// Используем helmet
+app.use(helmet());
+app.disable('x-powered-by');
 
 // Используем body parser
 app.use(bodyParser.json());
