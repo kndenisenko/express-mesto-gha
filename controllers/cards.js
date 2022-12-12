@@ -1,4 +1,5 @@
 const Card = require('../models/cards');
+const { error } = require('../middlewares/errors');
 
 module.exports.getCards = (req, res) => {
   Card.find()
@@ -14,10 +15,14 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: '400 — Переданы некорректные данные при создании карточки.',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+        error(
+          err,
+          res,
+          '400',
+          'ValidationError',
+          '400 — Переданы некорректные данные при создании карточки',
+        );
+      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
     });
 };
 
@@ -35,10 +40,14 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({
-          message: '400 — карточка с указанным _id не найдена.',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+        error(
+          err,
+          res,
+          '400',
+          'CastError',
+          '400 — карточка с указанным _id не найдена',
+        );
+      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
     });
 };
 
@@ -59,10 +68,14 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({
-          message: '400 — карточка с указанным _id не найдена.',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+        error(
+          err,
+          res,
+          '400',
+          'CastError',
+          '400 — карточка с указанным _id не найдена',
+        );
+      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
     });
 };
 
@@ -83,9 +96,13 @@ module.exports.dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({
-          message: '400 — карточка с указанным _id не найдена.',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+        error(
+          err,
+          res,
+          '400',
+          'CastError',
+          '400 — карточка с указанным _id не найдена',
+        );
+      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
     });
 };
