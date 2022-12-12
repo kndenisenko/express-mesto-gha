@@ -11,6 +11,7 @@ node_modules
 
 # ENV files
 process.env
+.env
 
 # Optional REPL history
 .DS_Store

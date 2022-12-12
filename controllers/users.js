@@ -1,4 +1,15 @@
 const User = require('../models/user');
+const { error } = require('../middlewares/errors');
+
+// const error = (err, res, errStatus, errorName, errorMessage) => {
+//   if (err.name === errorName) {
+//     return res.status(errStatus).send({
+//       message: errorMessage,
+//     });
+//   }
+
+//   return res.status(500).send({ message: '500 — Ошибка сервера' });
+// };
 
 // Контроллер для выдачи списка юзеров
 module.exports.getUsers = (req, res) => {
@@ -12,19 +23,26 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        res.status(404).send({
-          message: '404 — Пользователь с указанным _id не найден',
-        });
-        return;
+        error(
+          '', // тут должно быть err, но его нет выше
+          res,
+          '404',
+          'ValidationError',
+          '404 — Пользователь с указанным _id не найден',
+        );
       }
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({
-          message: '400 — Передан невалидный _id, пользователь не найден.',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+        error(
+          err,
+          res,
+          '400',
+          'CastError',
+          '400 - Передан невалидный _id, пользователь не найден',
+        );
+      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
     });
 };
 
@@ -35,11 +53,13 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: '400 — Переданы некорректные данные при создании пользователя',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+      error(
+        err,
+        res,
+        '400',
+        'ValidationError',
+        '400 - передены некорректные данные при создании пользоватея',
+      );
     });
 };
 
@@ -52,11 +72,13 @@ module.exports.updateUser = (req, res) => {
 
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: '400 — Переданы некорректные данные при обновлении профиля.',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+      error(
+        err,
+        res,
+        '400',
+        'ValidationError',
+        '400 — Переданы некорректные данные при обновлении профиля',
+      );
     });
 };
 
@@ -67,10 +89,12 @@ module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({
-          message: '400 — Переданы некорректные данные при обновлении аватара.',
-        });
-      } return res.status(500).send({ message: '500 — Ошибка сервера' });
+      error(
+        err,
+        res,
+        '400',
+        'ValidationError',
+        '400 — Переданы некорректные данные при обновлении аватара',
+      );
     });
 };
