@@ -23,13 +23,10 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        error(
-          '', // тут должно быть err, но его нет выше
-          res,
-          '404',
-          'ValidationError',
-          '404 — Пользователь с указанным _id не найден',
-        );
+        res.status(404).send({
+          message: '404 — Пользователь с указанным _id не найден',
+        });
+        return;
       }
       res.send(user);
     })

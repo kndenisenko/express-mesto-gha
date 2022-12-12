@@ -1,6 +1,6 @@
-module.exports.error = (err, res, errStatus, errorName, errorMessage) => {
+module.exports.error = (err, res, errCode, errorName, errorMessage) => {
   if (err.name === errorName) {
-    return res.status(errStatus).send({
+    return res.status(errCode).send({
       message: errorMessage,
     });
   }
