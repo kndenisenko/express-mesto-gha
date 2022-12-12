@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const { error } = require('../middlewares/errors');
 
@@ -45,19 +46,37 @@ module.exports.getUserById = (req, res) => {
 
 // Контроллер создания юзера createUser
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      error(
-        err,
-        res,
-        '400',
-        'ValidationError',
-        '400 - передены некорректные данные при создании пользоватея',
-      );
-    });
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    })
+
+      .then((user) => {
+        const data = {
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        };
+        res.status(201).send(data);
+      })
+      .catch((err) => {
+        error(
+          err,
+          res,
+          '400',
+          'ValidationError',
+          '400 - передены некорректные данные при создании пользоватея',
+        );
+      }));
 };
 
 // Контроллер изменения имени и био Юзера updateUser
