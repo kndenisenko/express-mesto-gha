@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { error } = require('../middlewares/errors');
 
@@ -112,5 +113,23 @@ module.exports.updateAvatar = (req, res) => {
         'ValidationError',
         '400 — Переданы некорректные данные при обновлении аватара',
       );
+    });
+};
+
+// login
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // аутентификация успешна! пользователь в переменной user
+      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch((err) => {
+      // ошибка аутентификации
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };

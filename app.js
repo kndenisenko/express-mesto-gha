@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 // const validator = require('validator ');
 const helmet = require('helmet');
+// const router = require('express').Router();
+const {
+  createUser,
+  login,
+} = require('./controllers/users');
 
 const app = express();
 
@@ -31,6 +36,11 @@ app.use((req, res, next) => {
 // Используем Роуты
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+// Роуты для логина и регистрации
+app.post('/signup', createUser); // новый юзер
+app.post('/signin', login); // логин текущего юзера
+console.log(createUser);
 
 // Ошибка 404 для несуществующих страниц
 app.use((req, res) => {
