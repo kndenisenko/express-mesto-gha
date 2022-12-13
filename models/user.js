@@ -40,11 +40,9 @@ const userSchema = new mongoose.Schema({
 // Схема идентификации юзера методами moongoose
 // 14 спринт → Тема 2/9: Аутентификация и авторизация. Продолжение → Урок 5/7
 userSchema.statics.findUserByCredentials = function (email, password) {
-  console.log('model:', email, password);
   return this.findOne({ email }) // this — это модель User
     .then((user) => {
       // не нашёлся — отклоняем промис
-      console.log(user, email, password);
       if (!user) {
         return Promise.reject(new Error('Неправильный почта или пароль'));
       }
@@ -54,7 +52,6 @@ userSchema.statics.findUserByCredentials = function (email, password) {
           if (!matched) {
             return Promise.reject(new Error('Неправильные почта или пароль'));
           }
-
           return user; // теперь user доступен
         });
     });

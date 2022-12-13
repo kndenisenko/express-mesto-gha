@@ -40,7 +40,6 @@ app.use('/cards', require('./routes/cards'));
 // Роуты для логина и регистрации
 app.post('/signup', createUser); // новый юзер
 app.post('/signin', login); // логин текущего юзера
-console.log(createUser);
 
 // Ошибка 404 для несуществующих страниц
 app.use((req, res) => {
