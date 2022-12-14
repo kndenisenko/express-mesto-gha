@@ -1,4 +1,5 @@
 const express = require('express');
+const { celebrate, Joi } = require('celebrate');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 // const validator = require('validator ');
@@ -8,6 +9,8 @@ const {
   createUser,
   login,
 } = require('./controllers/users');
+
+const REG_LINK = /^(?:(http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
 
 const app = express();
 
@@ -25,21 +28,34 @@ app.use(bodyParser.urlencoded({ extended: true }));
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 // Эмуляция авторизации из описания ПР
-app.use((req, res, next) => {
-  req.user = {
-    _id: '638cc711793262883c4a1f55', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '639749daa603a64dec4d9314', // _id созданного в предыдущем пункте пользователя
+//   };
 
-  next();
-});
+//   next();
+// });
 
 // Используем Роуты
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 // Роуты для логина и регистрации
-app.post('/signup', createUser); // новый юзер
-app.post('/signin', login); // логин текущего юзера
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(REG_LINK),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), createUser);
 
 // Ошибка 404 для несуществующих страниц
 app.use((req, res) => {

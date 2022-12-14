@@ -3,15 +3,14 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { error } = require('../middlewares/errors');
 
-// const error = (err, res, errStatus, errorName, errorMessage) => {
-//   if (err.name === errorName) {
-//     return res.status(errStatus).send({
-//       message: errorMessage,
-//     });
-//   }
-
-//   return res.status(500).send({ message: '500 — Ошибка сервера' });
-// };
+// Контроллер для получения инфы о юзере, без его ID
+module.exports.getUser = (req, res) => {
+  User.findById(req.params.id)
+    .then((user) => {
+      res.send(user);
+    })
+    .catch(() => res.status(500).send({ message: '500 — Ошибка по умолчанию.' }));
+};
 
 // Контроллер для выдачи списка юзеров
 module.exports.getUsers = (req, res) => {
@@ -87,7 +86,7 @@ module.exports.updateUser = (req, res) => {
   // runValidators: true - валидация данных по схемам moongoose
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
 
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       error(
         err,
@@ -104,7 +103,7 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       error(
         err,
@@ -120,7 +119,7 @@ module.exports.updateAvatar = (req, res) => {
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password) // login
     .then((user) => {
       // аутентификация успешна! пользователь в переменной user
       const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
