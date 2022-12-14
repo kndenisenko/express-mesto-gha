@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { ValidationError } = require('../errors/validationError');
-const { ConflictError } = require('../errors/castError');
+const { ConflictError } = require('../errors/conflictError');
 const { CastError } = require('../errors/castError');
 const { NoUserId } = require('../errors/noUserId');
 
@@ -64,7 +64,7 @@ module.exports.createUser = (req, res, next) => {
       })
       .catch((err) => {
         console.log(name, about, avatar);
-        if (err.code === 409) {
+        if (err.code === 11000) {
           next(new ConflictError('409 - Почта уже используется, смените почту'));
         } else if (err.name === '1') {
           next(new ValidationError('400 - Переданы некорректные данные при создании пользователя'));
