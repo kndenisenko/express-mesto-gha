@@ -7,7 +7,7 @@ module.exports.getCards = (req, res) => {
     .catch(() => res.status(500).send({ message: '500 — Ошибка сервера' }));
 };
 
-// Контроллер создания юзера
+// Контроллер создания карточки
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
 
@@ -22,7 +22,7 @@ module.exports.createCard = (req, res) => {
           'ValidationError',
           '400 — Переданы некорректные данные при создании карточки',
         );
-      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
+      }
     });
 };
 
@@ -31,23 +31,25 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(404).send({
+        return res.status(404).send({
           message: '404 — карточка с указанным _id не найдена',
         });
-        return;
       }
-      res.send(card);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        error(
-          err,
-          res,
-          '400',
-          'CastError',
-          '400 — карточка с указанным _id не найдена',
-        );
-      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
+      const owner = card.owner.toHexString();
+      if (owner === req.user.id) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .orFail(new Error('noValidId'))
+          .then((cardDeleted) => res.send(cardDeleted))
+          .catch((err) => {
+            if (err.message === 'NoValidId') {
+              res
+                .status(404)
+                .send({ message: '404 — Карточка с указанным _id не найдена.' });
+            }
+          });
+        return owner;
+      }
+      return res.status(403).send({ message: '403 — Недостаточно прав' });
     });
 };
 
@@ -57,25 +59,16 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
+    .orFail(new Error('NoValidId'))
     .then((card) => {
-      if (!card) {
-        res.status(404).send({
-          message: '404 — карточка с указанным _id не найдена',
-        });
-        return;
-      }
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        error(
-          err,
-          res,
-          '400',
-          'CastError',
-          '400 — карточка с указанным _id не найдена',
-        );
-      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
+      if (err.message === 'NoValidId') {
+        res
+          .status(404)
+          .send({ message: '404 — Передан несуществующий _id карточки' });
+      }
     });
 };
 
@@ -85,24 +78,15 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
+    .orFail(new Error('NoValidId'))
     .then((card) => {
-      if (!card) {
-        res.status(404).send({
-          message: '404 — передан неверный _id, карточка не найдена',
-        });
-        return;
-      }
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        error(
-          err,
-          res,
-          '400',
-          'CastError',
-          '400 — карточка с указанным _id не найдена',
-        );
-      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
+      if (err.message === 'NoValidId') {
+        res
+          .status(404)
+          .send({ message: '404 — Передан несуществующий _id карточки' });
+      }
     });
 };

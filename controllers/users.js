@@ -40,12 +40,12 @@ module.exports.getUserById = (req, res) => {
           'CastError',
           '400 - Передан невалидный _id, пользователь не найден',
         );
-      } // return res.status(500).send({ message: '500 — Ошибка сервера' });
+      }
     });
 };
 
 // Контроллер создания юзера createUser
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -69,6 +69,16 @@ module.exports.createUser = (req, res) => {
         res.status(201).send(data);
       })
       .catch((err) => {
+        if (err.code === 11000) {
+          next(error(
+            err,
+            res,
+            '409',
+            'ValidationError',
+            '409 - пользователь с такой почтой уже зарегистрирован',
+          ));
+          return;
+        }
         error(
           err,
           res,
@@ -86,7 +96,9 @@ module.exports.updateUser = (req, res) => {
   // runValidators: true - валидация данных по схемам moongoose
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
 
-    .then((user) => res.send(user))
+    .then((user) => {
+      res.send(user);
+    })
     .catch((err) => {
       error(
         err,
@@ -103,7 +115,9 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((user) => res.send(user))
+    .then((user) => {
+      res.send(user);
+    })
     .catch((err) => {
       error(
         err,

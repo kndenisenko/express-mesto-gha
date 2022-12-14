@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 
-// Просто так ObjectId не задался в поле type
-// Задаём его через const для всех нужных полей
-// const { ObjectId } = mongoose.Schema.Types.ObjectId;
-
 const cardsSchema = new mongoose.Schema({
   name: {
     type: String, // тип поля - строка

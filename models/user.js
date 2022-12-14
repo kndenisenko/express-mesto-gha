@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const isEmail = require('validator/lib/isEmail');
+const isURL = require('validator/lib/isURL');
 
 // схема юзера
 const userSchema = new mongoose.Schema({
@@ -19,6 +20,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator: (v) => isURL(v),
+      message: () => 'Неправильный формат ссылки на картинку',
+    },
   },
   email: {
     type: String,
@@ -42,19 +47,19 @@ const userSchema = new mongoose.Schema({
 // 14 спринт → Тема 2/9: Аутентификация и авторизация. Продолжение → Урок 5/7
 userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
   return this.findOne({ email })
-    .select('+password') // this — это модель User
+    .select('+password')
     .then((user) => {
-      // не нашёлся — отклоняем промис
+      // не нашёлся — отклоняем
       if (!user) {
-        return Promise.reject(new Error('123 - Неправильный почта или пароль'));
+        return Promise.reject(new Error('Пользователь не существует'));
       }
       // нашёлся — сравниваем хеши
       return bcrypt.compare(password, user.password)
         .then((matched) => {
-          if (!matched) {
-            return Promise.reject(new Error('456 - Неправильные почта или пароль'));
+          if (!matched) { // Если не совпадает почта или пароль
+            return Promise.reject(new Error('Неправильные почта или пароль'));
           }
-          return user; // теперь user доступен
+          return user; // почта и пароль совпал, теперь user доступен
         });
     });
 };
