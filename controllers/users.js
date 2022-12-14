@@ -63,9 +63,10 @@ module.exports.createUser = (req, res, next) => {
         res.status(201).send(data);
       })
       .catch((err) => {
+        console.log(name, about, avatar);
         if (err.code === 409) {
           next(new ConflictError('409 - Почта уже используется, смените почту'));
-        } else if (err.name === 'ValidationError') {
+        } else if (err.name === '1') {
           next(new ValidationError('400 - Переданы некорректные данные при создании пользователя'));
         } else {
           next(err);
