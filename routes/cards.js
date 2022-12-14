@@ -8,7 +8,7 @@ const {
   dislikeCard,
 } = require('../controllers/cards');
 
-const REG_LINK = /^(?:(http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
+const REG_LINK = /^(?:(ftp|http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9][a-zA-Z0-9-]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
 
 // Роутеры для get-запросов
 router.get('/', getCards);
@@ -23,7 +23,6 @@ router.post('/', celebrate({
 
 // Роутер для delete-запроса
 router.delete('/:cardId', celebrate({
-  // валидируем параметры
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),
@@ -31,7 +30,6 @@ router.delete('/:cardId', celebrate({
 
 // Роутер для лайка карточки
 router.put('/:cardId/likes', celebrate({
-  // валидируем параметры
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),
@@ -39,7 +37,6 @@ router.put('/:cardId/likes', celebrate({
 
 // Роутер для дизлайка карточки
 router.delete('/:cardId/likes', celebrate({
-  // валидируем параметры
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),

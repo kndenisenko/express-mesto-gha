@@ -8,19 +8,18 @@ const {
   updateAvatar,
 } = require('../controllers/users');
 
-const REG_LINK = /^(?:(http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
+const REG_LINK = /^(?:(ftp|http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9][a-zA-Z0-9-]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
 
 // Роутеры для get-запросов
-router.get('/', getUsers); // /users
+router.get('/', getUsers); // выдать всех юзеров
+
+router.get('/me', getUser); // текущий юзер, по идее залогиненный
 
 router.get('/:id', celebrate({
-  // валидируем параметры
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24),
+    id: Joi.string().alphanum().length(24),
   }),
 }), getUserById);
-
-router.get('/me', getUser);
 
 // Роутер для обновления инфы о юзере
 router.patch('/me', celebrate({

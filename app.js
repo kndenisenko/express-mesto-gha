@@ -2,25 +2,23 @@ const express = require('express');
 const { celebrate, Joi } = require('celebrate');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-// const validator = require('validator ');
+const { errors } = require('celebrate');
 const helmet = require('helmet');
-// const router = require('express').Router();
+const { isAuthorized } = require('./middlewares/auth');
+
 const {
   createUser,
   login,
 } = require('./controllers/users');
 
-const REG_LINK = /^(?:(http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
+const REG_LINK = /^(?:(ftp|http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9][a-zA-Z0-9-]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
 
 const app = express();
-
 const { PORT = 3000 } = process.env;
 
-// Используем helmet
+// Используем helmet и body parser
 app.use(helmet());
 app.disable('x-powered-by');
-
-// Используем body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -35,10 +33,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 
 //   next();
 // });
-
-// Используем Роуты
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
 
 // Роуты для логина и регистрации
 app.post('/signin', celebrate({
@@ -58,9 +52,28 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
+// Защищаем авторизацией всё что ниже
+app.use(isAuthorized);
+
+// Используем Роуты
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
+
 // Ошибка 404 для несуществующих страниц
 app.use((req, res) => {
   res.status(404).send({ message: 'Ошибка 404. Запрошенной Страницы не существует' });
+});
+
+// Обработка ошибок celebrate
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  if (err.statusCode) {
+    return res.status(err.statusCode).send({ message: err.message });
+  }
+  res.status(500).send({ message: err });
+
+  return next();
 });
 
 app.listen(PORT, () => {

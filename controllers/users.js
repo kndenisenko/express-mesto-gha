@@ -1,45 +1,39 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { error } = require('../middlewares/errors');
+const { ValidationError } = require('../errors/validationError');
+const { ConflictError } = require('../errors/castError');
+const { CastError } = require('../errors/castError');
+const { NoUserId } = require('../errors/noUserId');
 
 // Контроллер для получения инфы о юзере, без его ID
-module.exports.getUser = (req, res) => {
-  User.findById(req.params.id)
-    .then((user) => {
-      res.send(user);
-    })
-    .catch(() => res.status(500).send({ message: '500 — Ошибка по умолчанию.' }));
+module.exports.getUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.send(user))
+    .catch((err) => next(err));
 };
 
 // Контроллер для выдачи списка юзеров
-module.exports.getUsers = (req, res) => {
-  User.find(req.params.id)
-    .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: '500 — Ошибка по умолчанию.' }));
+module.exports.getUsers = (req, res, next) => {
+  User.find({})
+    .then((user) => res.send(user))
+    .catch((err) => next(err));
 };
 
 // Контроллер для поиска юзера по id
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.id)
+    .orFail(new Error('NoValidId'))
     .then((user) => {
-      if (!user) {
-        res.status(404).send({
-          message: '404 — Пользователь с указанным _id не найден',
-        });
-        return;
-      }
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        error(
-          err,
-          res,
-          '400',
-          'CastError',
-          '400 - Передан невалидный _id, пользователь не найден',
-        );
+      if (err.message === 'NoValidId') {
+        next(new NoUserId('404 - Пользователь не существует'));
+      } else if (err.message === 'CastError') {
+        next(new CastError('400 —  Некорректное ID пользователя'));
+      } else {
+        next(err);
       }
     });
 };
@@ -70,28 +64,19 @@ module.exports.createUser = (req, res, next) => {
       })
       .catch((err) => {
         if (err.code === 11000) {
-          next(error(
-            err,
-            res,
-            '409',
-            'ValidationError',
-            '409 - пользователь с такой почтой уже зарегистрирован',
-          ));
-          return;
+          next(new ConflictError('409 - Почта уже используется, смените почту'));
+        } else if (err.name === 'ValidationError') {
+          next(new ValidationError('400 - Переданы некорректные данные при создании пользователя'));
+        } else {
+          next(err);
         }
-        error(
-          err,
-          res,
-          '400',
-          'ValidationError',
-          '400 - передены некорректные данные при создании пользоватея',
-        );
       }));
 };
 
 // Контроллер изменения имени и био Юзера updateUser
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
+
   // new: true - чтобы возвращать данные обновлённого пользователя вместо старого
   // runValidators: true - валидация данных по схемам moongoose
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
@@ -100,18 +85,16 @@ module.exports.updateUser = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      error(
-        err,
-        res,
-        '400',
-        'ValidationError',
-        '400 — Переданы некорректные данные при обновлении профиля',
-      );
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('400 —  Переданы некорректные данные при обновлении профиля'));
+      } else {
+        next(err);
+      }
     });
 };
 
 // Контроллер изменения аватара юзера
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
@@ -119,30 +102,25 @@ module.exports.updateAvatar = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      error(
-        err,
-        res,
-        '400',
-        'ValidationError',
-        '400 — Переданы некорректные данные при обновлении аватара',
-      );
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('400 — Переданы некорректные данные при обновлении аватара'));
+      } else {
+        next(err);
+      }
     });
 };
 
 // login
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password) // login
     .then((user) => {
       // аутентификация успешна! пользователь в переменной user
-      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, '%YfbWcx5ks@kviWTaB#aCqW9Y*', { expiresIn: '7d' });
       res.send({ token });
     })
     .catch((err) => {
-      // ошибка аутентификации
-      res
-        .status(401)
-        .send({ message: err.message });
+      next(err);
     });
 };

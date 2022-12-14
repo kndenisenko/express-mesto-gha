@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const isEmail = require('validator/lib/isEmail');
-const isURL = require('validator/lib/isURL');
+const { UnauthorizedError } = require('../errors/unauthorizedError');
+
+const REG_LINK = /^(?:(ftp|http|https):\/\/)?(?:[a-zA-Z]+\.){0,1}(?:[a-zA-Z0-9][a-zA-Z0-9-]+){1}(?:\.[a-zA-Z]{2,6})?(\/|\/\w\S*)?$/;
 
 // схема юзера
 const userSchema = new mongoose.Schema({
@@ -21,7 +23,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator: (v) => isURL(v),
+      validator: (v) => REG_LINK.test(v),
       message: () => 'Неправильный формат ссылки на картинку',
     },
   },
@@ -51,13 +53,13 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(email,
     .then((user) => {
       // не нашёлся — отклоняем
       if (!user) {
-        return Promise.reject(new Error('Пользователь не существует'));
+        return Promise.reject(new UnauthorizedError('401 - Юзер не найден'));
       }
       // нашёлся — сравниваем хеши
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) { // Если не совпадает почта или пароль
-            return Promise.reject(new Error('Неправильные почта или пароль'));
+            return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
           }
           return user; // почта и пароль совпал, теперь user доступен
         });
