@@ -1,4 +1,5 @@
 const express = require('express');
+const dotenv = require('dotenv');
 const { celebrate, Joi } = require('celebrate');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -12,18 +13,20 @@ const { isAuthorized } = require('./middlewares/auth');
 
 const { createUser, login } = require('./controllers/users');
 
-// const REG_LINK = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
+// подключаем dotenv
+dotenv.config();
 
 const app = express();
 const { PORT = 3000 } = process.env;
 
 // Подключаем защиту от DDoS
 // Ограничиваем количество запросов в 15 минут до 300 штук
+// Хотя всё равно они прилетят за первые секунды. Наверное :)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 300, // Limit each IP to 300 requests per `window` (here, per 15 minutes)
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  // legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // legacyHeaders: false, // Disable the `X-RateLimit-*` headers --- уже отключено ниже, в helmet
 });
 
 // Apply the rate limiting middleware to all requests
@@ -71,6 +74,7 @@ app.use((req, res, next) => {
 // Обработка ошибок celebrate
 app.use(errors(app.err));
 
+// Общая обработка ошибок. Надо перенести её отсюда, но как? :(
 app.use((err, req, res, next) => {
   if (err.statusCode) {
     return res.status(err.statusCode).send({ message: err.message });

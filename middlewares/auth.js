@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { UnauthorizedError } = require('../errors/unauthorizedError');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 // Значаение payload будет перезаписано, поэтому оно создано через let
 let payload;
 
@@ -16,7 +18,7 @@ const isAuthorized = (req, res, next) => {
   const token = auth.replace('Bearer ', '');
 
   try {
-    payload = jwt.verify(token, '%YfbWcx5ks@kviWTaB#aCqW9Y*');
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : '%YfbWcx5ks@kviWTaB#aCqW9Y*');
   } catch (err) {
     throw new UnauthorizedError('Необходима авторизация');
   }
