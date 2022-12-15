@@ -17,7 +17,7 @@ router.get('/me', getUser); // текущий юзер, по идее залог
 
 router.get('/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().alphanum().length(24),
+    id: Joi.string().hex().length(24),
   }),
 }), getUserById);
 

@@ -25,15 +25,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Подключаемся к БД
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-// Эмуляция авторизации из описания ПР
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '639749daa603a64dec4d9314', // _id созданного в предыдущем пункте пользователя
-//   };
-
-//   next();
-// });
-
 // Роуты для логина и регистрации
 app.post('/signin', celebrate({
   body: Joi.object().keys({
