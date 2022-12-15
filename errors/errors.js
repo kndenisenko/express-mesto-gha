@@ -1,3 +1,5 @@
+// Общий обработчик ошибок, испольхуется в
+
 module.exports.error = (err, res, errCode, errorName, errorMessage) => {
   if (err.name === errorName) {
     return res.status(errCode).send({

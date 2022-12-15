@@ -1,20 +1,33 @@
 const express = require('express');
 const { celebrate, Joi } = require('celebrate');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const helmet = require('helmet');
+const { Error404 } = require('./errors/error404');
+const { REG_LINK } = require('./regexp/reglink');
+
 const { isAuthorized } = require('./middlewares/auth');
 
-const {
-  createUser,
-  login,
-} = require('./controllers/users');
+const { createUser, login } = require('./controllers/users');
 
-const REG_LINK = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
+// const REG_LINK = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
 
 const app = express();
 const { PORT = 3000 } = process.env;
+
+// Подключаем защиту от DDoS
+// Ограничиваем количество запросов в 15 минут до 300 штук
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300, // Limit each IP to 300 requests per `window` (here, per 15 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  // legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter);
 
 // Используем helmet и body parser
 app.use(helmet());
@@ -51,12 +64,12 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 // Ошибка 404 для несуществующих страниц
-app.use((req, res) => {
-  res.status(404).send({ message: 'Ошибка 404. Запрошенной Страницы не существует' });
+app.use((req, res, next) => {
+  next(new Error404('404 - Страницы не существует'));
 });
 
 // Обработка ошибок celebrate
-app.use(errors());
+app.use(errors(app.err));
 
 app.use((err, req, res, next) => {
   if (err.statusCode) {
