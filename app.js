@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const { Error404 } = require('./errors/error404');
 const { REG_LINK } = require('./regexp/reglink');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { isAuthorized } = require('./middlewares/auth');
 
@@ -41,6 +42,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Подключаемся к БД
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
+// Подключаем логгер запросов
+app.use(requestLogger);
+
 // Роуты для логина и регистрации
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -65,6 +69,9 @@ app.use(isAuthorized);
 // Используем Роуты
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+// Подключаем логгер ошибок
+app.use(errorLogger);
 
 // Ошибка 404 для несуществующих страниц
 app.use((req, res, next) => {
